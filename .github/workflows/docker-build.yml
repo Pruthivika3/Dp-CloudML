@@ -33,4 +33,4 @@ jobs:
         with:
           context: .
           push: true
-          tags: ghcr.io/pruthivika3/dp-cloudml:latest
+          tags: ghcr.io/Pruthivika3/dp-cloudml:latest
