@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DP-CloudML | Differential Privacy Training Lab</title>
+<style>
+:root{--bg:#07111f;--panel:#0d1b2d;--panel2:#12243a;--text:#e9f2ff;--muted:#8ea4bd;--accent:#5eead4;--accent2:#60a5fa;--danger:#fb7185;--border:#1f3651;--ok:#34d399;--warn:#fbbf24}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;font-family:Inter,Segoe UI,Arial,sans-serif;background:linear-gradient(135deg,#06101d,#0a1626 50%,#07111f);color:var(--text)}
+.container{max-width:1280px;margin:auto;padding:28px}header{display:flex;justify-content:space-between;align-items:center;gap:20px;margin-bottom:25px}.logo{font-weight:800;font-size:23px;letter-spacing:.5px}.logo span{color:var(--accent)}
+.status{padding:8px 13px;border:1px solid var(--border);border-radius:999px;background:#0b192a;color:var(--muted);font-size:13px}.status.ok{color:#b7f7e5;border-color:#1d5b4e}.status.busy{color:#fde68a;border-color:#604f1c}
+.hero{background:linear-gradient(135deg,rgba(96,165,250,.15),rgba(94,234,212,.07));border:1px solid var(--border);border-radius:22px;padding:30px;margin-bottom:20px}h1{margin:0 0 10px;font-size:34px}.hero p{color:var(--muted);max-width:900px;line-height:1.6;margin:0}
+.steps{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin:20px 0}.step{padding:12px 14px;border:1px solid var(--border);border-radius:12px;background:#0b192a;color:var(--muted);font-size:13px}.step.active{border-color:#287f74;background:#0d2a2a;color:#d8fff7}.step.done{border-color:#24546b;color:#b7d8f2}.step .num{display:inline-flex;width:24px;height:24px;align-items:center;justify-content:center;border-radius:50%;background:#162c43;margin-right:7px;font-weight:800}.step.active .num{background:var(--accent);color:#06201c}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:20px 0}.card{background:rgba(13,27,45,.92);border:1px solid var(--border);border-radius:16px;padding:18px}.card .label{color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:1px}.value{font-size:26px;font-weight:750;margin-top:7px}
+.section{margin:20px 0}.section-title{margin:0 0 12px;font-size:18px}.sub{color:var(--muted);font-size:13px;line-height:1.55}.upload-box{display:grid;grid-template-columns:1fr auto;gap:14px;align-items:end}.filebox{border:1px dashed #31516f;border-radius:14px;padding:18px;background:#091728}.filebox input{padding:0;border:0;background:transparent}.meta{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}.pill{border:1px solid var(--border);background:#091728;border-radius:999px;padding:7px 10px;color:#b7c9dd;font-size:12px}
+.controls{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;align-items:end}label{font-size:12px;color:var(--muted);display:block;margin-bottom:6px}input,select{width:100%;background:#081525;border:1px solid var(--border);color:var(--text);padding:11px;border-radius:10px}input:disabled,select:disabled{opacity:.55}button{border:0;border-radius:10px;padding:11px 15px;font-weight:700;cursor:pointer;background:var(--accent);color:#06201c}button:hover{filter:brightness(1.06)}button:disabled{opacity:.45;cursor:not-allowed}button.secondary{background:#1a2d45;color:var(--text);border:1px solid var(--border)}button.danger{background:#3a1723;color:#fecdd3;border:1px solid #5d2435}.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+.table-wrap{overflow:auto;border:1px solid var(--border);border-radius:15px}table{width:100%;border-collapse:collapse;min-width:900px}th,td{text-align:left;padding:11px;border-bottom:1px solid var(--border);font-size:13px;white-space:nowrap}th{color:var(--muted);background:#0a1828;position:sticky;top:0}.preview{max-height:360px}.empty{padding:25px;text-align:center;color:var(--muted)}
+.alert{display:none;padding:12px 14px;border-radius:10px;margin-top:12px;font-size:13px;line-height:1.5}.alert.error{display:block;background:#2a111a;border:1px solid #64263a;color:#fecdd3}.alert.info{display:block;background:#0d2236;border:1px solid #254c70;color:#c5e1fa}.alert.success{display:block;background:#0d2926;border:1px solid #1e5b4e;color:#b7f7e5}
+canvas{width:100%;height:300px;background:#081525;border:1px solid var(--border);border-radius:15px}.progress-wrap{display:none;margin-top:14px}.progress-bar{height:8px;border-radius:99px;background:#12243a;overflow:hidden}.progress-bar span{display:block;height:100%;width:35%;background:var(--accent);animation:pulse 1.2s infinite alternate}@keyframes pulse{from{transform:translateX(-10%)}to{transform:translateX(230%)}}
+pre{background:#06101d;border:1px solid var(--border);border-radius:12px;padding:14px;overflow:auto;color:#b7c9dd}.note{color:var(--muted);font-size:13px;line-height:1.6}.hidden{display:none!important}.target-row{display:grid;grid-template-columns:1fr 2fr;gap:14px;align-items:end;margin-top:14px}.result-highlight{border-left:3px solid var(--accent);padding-left:12px}
+@media(max-width:1000px){.grid{grid-template-columns:repeat(2,1fr)}.controls{grid-template-columns:repeat(3,1fr)}.steps{grid-template-columns:repeat(3,1fr)}}@media(max-width:650px){.container{padding:16px}.grid{grid-template-columns:1fr}.controls,.upload-box,.target-row{grid-template-columns:1fr}.steps{grid-template-columns:1fr 1fr}h1{font-size:27px}}
+</style>
+</head>
+<body>
+<div class="container">
+<header><div class="logo">DP-<span>CloudML</span></div><div class="status" id="status">Checking service...</div></header>
+<section class="hero"><h1>Differential Privacy Training Lab</h1><p>Upload your own classification dataset, inspect it, select the target column, train a non-private baseline or DP-SGD model, and compare privacy–utility measurements in one workflow.</p></section>
+
+<div class="steps">
+  <div class="step active" id="step1"><span class="num">1</span>Dataset Upload</div>
+  <div class="step" id="step2"><span class="num">2</span>Preview</div>
+  <div class="step" id="step3"><span class="num">3</span>Target Selection</div>
+  <div class="step" id="step4"><span class="num">4</span>Training</div>
+  <div class="step" id="step5"><span class="num">5</span>Results</div>
+</div>
+
+<div class="grid">
+ <div class="card"><div class="label">Experiments</div><div class="value" id="count">0</div></div>
+ <div class="card"><div class="label">Best Accuracy</div><div class="value" id="bestAcc">—</div></div>
+ <div class="card"><div class="label">Latest Epsilon</div><div class="value" id="epsilon">—</div></div>
+ <div class="card"><div class="label">Process Memory</div><div class="value" id="memory">—</div></div>
+</div>
+
+<section class="card section" id="uploadSection">
+ <div class="section-title">1. Upload Dataset</div>
+ <p class="sub">Choose a CSV, XLSX, or XLS classification dataset. The file is processed by the local Flask service; it is not hard-coded into the training script.</p>
+ <div class="upload-box">
+   <div class="filebox"><label for="file">Dataset file</label><input id="file" type="file" accept=".csv,.xlsx,.xls"></div>
+   <button id="uploadBtn" onclick="upload()">Upload & Inspect</button>
+ </div>
+ <div id="uploadAlert" class="alert"></div>
+ <div class="meta hidden" id="datasetMeta"></div>
+</section>
+
+<section class="card section hidden" id="previewSection">
+ <div class="section-title">2. Dataset Preview</div>
+ <p class="sub" id="datasetInfo">Upload a dataset to see its preview.</p>
+ <div class="table-wrap preview"><table><thead id="previewHead"></thead><tbody id="previewBody"></tbody></table></div>
+</section>
+
+<section class="card section hidden" id="targetSection">
+ <div class="section-title">3. Select Target / Label</div>
+ <p class="sub">Choose the column the model should predict. The remaining usable columns become model features. Classification targets with at least two and at most 100 classes are supported.</p>
+ <div class="target-row">
+   <div><label for="label">Target column</label><select id="label" disabled onchange="targetChanged()"><option value="">Upload a dataset first</option></select></div>
+   <div class="result-highlight"><div class="sub" id="targetInfo">Target selection is required before training.</div></div>
+ </div>
+</section>
+
+<section class="card section" id="trainingSection">
+ <div class="section-title">4. Training Configuration</div>
+ <div class="controls">
+  <div><label>Mode</label><select id="mode"><option value="baseline">Baseline</option><option value="dp">Differential Privacy (DP-SGD)</option></select></div>
+  <div><label>Epochs</label><input id="epochs" type="number" min="1" max="20" value="3"></div>
+  <div><label>Batch size</label><input id="batch" type="number" min="8" max="1024" value="256"></div>
+  <div><label>Noise multiplier</label><input id="noise" type="number" min="0.01" step="0.1" value="1.0"></div>
+  <div><label>Gradient clip norm</label><input id="clip" type="number" min="0.01" step="0.1" value="1.0"></div>
+  <div><label>Delta</label><input id="delta" type="number" min="0.00000001" step="0.00001" value="0.00001"></div>
+ </div>
+ <div class="actions">
+   <button id="trainBtn" onclick="train()" disabled>Train Selected Configuration</button>
+   <button id="experimentBtn" onclick="runExperiment()" class="secondary" disabled>Run Full Experiment</button>
+   <button onclick="refresh()" class="secondary">Refresh</button>
+   <button onclick="resetResults()" class="danger">Reset Results</button>
+ </div>
+ <div class="progress-wrap" id="progress"><div class="sub" id="progressText">Training...</div><div class="progress-bar"><span></span></div></div>
+ <div id="trainAlert" class="alert"></div>
+ <p class="note">Baseline ignores noise and clipping. DP-SGD uses Opacus to calculate epsilon for the selected delta. Full experiment runs one baseline plus three DP noise configurations.</p>
+</section>
+
+<section class="section"><div class="section-title">5. Privacy–Utility Visualization</div><canvas id="chart" width="1100" height="300"></canvas></section>
+<section class="section"><div class="section-title">Experimental Results</div><div class="table-wrap"><table><thead><tr><th>Experiment</th><th>Dataset</th><th>Mode</th><th>Noise</th><th>Epsilon</th><th>Accuracy</th><th>Precision</th><th>Recall</th><th>F1</th><th>Train Time</th><th>Memory</th></tr></thead><tbody id="rows"></tbody></table><div id="emptyResults" class="empty">No training results yet. Upload a dataset, select its target, and start training.</div></div></section>
+<section class="section"><div class="section-title">System Metrics</div><pre id="metrics">Loading...</pre></section>
+<section class="card section"><div class="section-title">Viva Summary</div><p class="note"><b>Dataset:</b> supplied through the dashboard. <b>Target:</b> selected by the user. <b>Gradient clipping:</b> limits each sample's gradient contribution. <b>Noise:</b> adds calibrated randomness to the aggregate update. <b>Epsilon:</b> reports privacy loss under the configured Opacus accountant and delta. <b>Kubernetes:</b> provides orchestration/scaling and is separate from the DP guarantee.</p></section>
+</div>
+<script>
+const $=id=>document.getElementById(id);let currentDataset=null;let training=false;
+async function api(url,options={}){const r=await fetch(url,options);let data={};try{data=await r.json()}catch{}if(!r.ok)throw new Error(data.error||`Request failed (${r.status})`);return data}
+function setStatus(t,kind=''){const el=$("status");el.textContent=t;el.className='status '+kind}
+function esc(v){return String(v??'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#039;')}
+function alertBox(id,msg,type='info'){const el=$(id);el.textContent=msg;el.className='alert '+type}
+function setStep(n){for(let i=1;i<=5;i++){const e=$("step"+i);e.classList.toggle('active',i===n);e.classList.toggle('done',i<n)}}
+function targetChanged(){const label=$("label").value;if(!label){$("targetInfo").textContent='Target selection is required before training.';enableTraining(false);return}const col=(currentDataset?.columns||[]).find(c=>c.name===label);$("targetInfo").textContent=col?`${col.unique.toLocaleString()} unique value(s), detected as ${col.dtype}. The model will use the other usable columns as features.`:'Target selected.';enableTraining(true);setStep(4)}
+function enableTraining(enabled){$("trainBtn").disabled=!enabled||training;$("experimentBtn").disabled=!enabled||training}
+function setBusy(busy,text='Training...'){training=busy;$("uploadBtn").disabled=busy;$("file").disabled=busy;$("trainBtn").disabled=busy||!currentDataset||!$("label").value;$("experimentBtn").disabled=busy||!currentDataset||!$("label").value;$("progress").style.display=busy?'block':'none';$("progressText").textContent=text}
+async function health(){try{await api('/api/health');if(!training)setStatus('● Service healthy','ok')}catch(e){setStatus('● Service unavailable')}}
+async function upload(){const file=$("file").files[0];if(!file){alertBox('uploadAlert','Choose a CSV, XLSX, or XLS file first.','error');return}const allowed=['.csv','.xlsx','.xls'];if(!allowed.some(x=>file.name.toLowerCase().endsWith(x))){alertBox('uploadAlert','Unsupported file type. Use CSV, XLSX, or XLS.','error');return}setStatus('Uploading dataset...','busy');setBusy(true,'Uploading and inspecting dataset...');alertBox('uploadAlert','The dataset is being validated and a preview is being prepared.','info');try{const fd=new FormData();fd.append('file',file);const data=await api('/api/upload',{method:'POST',body:fd});currentDataset=data;renderDataset(data);alertBox('uploadAlert','Dataset uploaded successfully. Review the preview and select the target column.','success');setStatus('Dataset ready','ok');setStep(2);$("previewSection").scrollIntoView({behavior:'smooth',block:'start'})}catch(e){currentDataset=null;alertBox('uploadAlert',e.message,'error');setStatus('Upload error')}finally{setBusy(false)}}
+function renderDataset(data){$("datasetMeta").classList.remove('hidden');$("datasetMeta").innerHTML=`<span class="pill">File: ${esc(data.filename)}</span><span class="pill">Rows: ${data.rows.toLocaleString()}</span><span class="pill">Columns: ${data.columns.length}</span><span class="pill">Dataset ID: ${esc(data.dataset_id.slice(0,12))}…</span>`;$("datasetInfo").textContent=`${data.filename}: ${data.rows.toLocaleString()} rows × ${data.columns.length} columns. Showing the first ${data.preview.length} rows.`;const cols=data.columns.map(c=>c.name);$("previewHead").innerHTML='<tr>'+cols.map(c=>`<th>${esc(c)}</th>`).join('')+'</tr>';$("previewBody").innerHTML=data.preview.map(r=>'<tr>'+cols.map(c=>`<td>${esc(r[c])}</td>`).join('')+'</tr>').join('');$("previewSection").classList.remove('hidden');$("targetSection").classList.remove('hidden');const sel=$("label");sel.innerHTML='<option value="">— Select target column —</option>'+data.columns.map(c=>`<option value="${esc(c.name)}">${esc(c.name)} · ${esc(c.dtype)} · ${c.unique} unique</option>`).join('');sel.disabled=false;$("trainAlert").textContent='';$("trainAlert").className='alert';enableTraining(false);setStep(3)}
+async function train(){if(!currentDataset){alertBox('trainAlert','Upload a dataset first.','error');return}if(!$("label").value){alertBox('trainAlert','Select a target column before training.','error');return}const body={mode:$("mode").value,dataset_id:currentDataset.dataset_id,filename:currentDataset.filename,label_column:$("label").value,epochs:Number($("epochs").value),batch_size:Number($("batch").value),noise_multiplier:Number($("noise").value),max_grad_norm:Number($("clip").value),delta:Number($("delta").value)};setBusy(true,`Training ${body.mode==='dp'?'DP-SGD':'baseline'} model...`);setStatus('Training in progress...','busy');alertBox('trainAlert','Training is running. Keep this page open until the result is returned.','info');setStep(4);try{await api('/api/train',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});alertBox('trainAlert','Training completed successfully. Results are shown below.','success');setStatus('Training complete','ok');await refresh();setStep(5);document.querySelector('#rows').scrollIntoView({behavior:'smooth',block:'start'})}catch(e){alertBox('trainAlert',e.message,'error');setStatus('Training error')}finally{setBusy(false)}}
+async function runExperiment(){if(!currentDataset||!$("label").value){alertBox('trainAlert','Upload a dataset and select a target column first.','error');return}const body={dataset_id:currentDataset.dataset_id,filename:currentDataset.filename,label_column:$("label").value,epochs:Number($("epochs").value),batch_size:Number($("batch").value),max_grad_norm:Number($("clip").value),delta:Number($("delta").value)};setBusy(true,'Running baseline + 3 DP configurations...');setStatus('Full experiment running...','busy');alertBox('trainAlert','Running four training configurations. This may take longer than a single run.','info');setStep(4);try{await api('/api/run-experiment',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});alertBox('trainAlert','Full experiment completed. Compare all configurations in the results table and chart.','success');setStatus('Experiment complete','ok');await refresh();setStep(5);document.querySelector('#rows').scrollIntoView({behavior:'smooth',block:'start'})}catch(e){alertBox('trainAlert',e.message,'error');setStatus('Experiment error')}finally{setBusy(false)}}
+async function resetResults(){if(!confirm('Clear all stored experiment results?'))return;try{await api('/api/reset',{method:'POST'});await refresh();alertBox('trainAlert','Stored results cleared. Your uploaded dataset is still available for training.','info')}catch(e){alertBox('trainAlert',e.message,'error')}}
+function fmt(v,d=3){return v===null||v===undefined?'—':Number(v).toFixed(d)}
+function render(data){$("count").textContent=data.length;const acc=data.map(x=>x.accuracy).filter(x=>x!=null);$("bestAcc").textContent=acc.length?(Math.max(...acc)*100).toFixed(2)+'%':'—';const last=data[data.length-1];$("epsilon").textContent=last&&last.epsilon!=null?fmt(last.epsilon,3):'—';$("emptyResults").style.display=data.length?'none':'block';$("rows").innerHTML=data.map((x,i)=>`<tr><td>${esc(x.experiment_name||('Run '+(i+1)))}</td><td>${esc(x.dataset||'—')}</td><td>${esc(x.mode||'—')}</td><td>${x.mode==='baseline'?'—':fmt(x.noise_multiplier,2)}</td><td>${x.epsilon==null?'—':fmt(x.epsilon,3)}</td><td>${x.accuracy==null?'—':(x.accuracy*100).toFixed(2)+'%'}</td><td>${x.precision==null?'—':(x.precision*100).toFixed(2)+'%'}</td><td>${x.recall==null?'—':(x.recall*100).toFixed(2)+'%'}</td><td>${x.f1_score==null?'—':(x.f1_score*100).toFixed(2)+'%'}</td><td>${fmt(x.training_time_seconds,2)} s</td><td>${fmt(x.memory_mb,1)} MB</td></tr>`).join('');draw(data)}
+function draw(data){const c=$("chart"),ctx=c.getContext('2d');ctx.clearRect(0,0,c.width,c.height);ctx.strokeStyle='#29445f';ctx.lineWidth=1;for(let i=0;i<=5;i++){const y=35+i*45;ctx.beginPath();ctx.moveTo(60,y);ctx.lineTo(1070,y);ctx.stroke()}ctx.fillStyle='#8ea4bd';ctx.font='12px Segoe UI';ctx.fillText('Accuracy',12,22);ctx.fillText('Noise multiplier',470,285);const dp=data.filter(x=>x.mode==='dp'&&x.accuracy!=null);if(!dp.length){ctx.fillText('Run a DP configuration or the full experiment to populate this chart.',250,155);return}const maxX=Math.max(...dp.map(x=>x.noise_multiplier),1);const pts=dp.map(x=>({x:75+(x.noise_multiplier/maxX)*940,y:255-x.accuracy*205}));ctx.strokeStyle='#5eead4';ctx.lineWidth=3;ctx.beginPath();pts.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y));ctx.stroke();pts.forEach((p,i)=>{ctx.fillStyle='#60a5fa';ctx.beginPath();ctx.arc(p.x,p.y,5,0,Math.PI*2);ctx.fill();ctx.fillStyle='#e9f2ff';ctx.fillText('DP-'+dp[i].noise_multiplier,p.x-18,p.y-10)})}
+async function refresh(){try{const data=await api('/api/results');render(data);const m=await api('/api/metrics');$("memory").textContent=m.memory_mb.toFixed(1)+' MB';$("metrics").textContent=JSON.stringify(m,null,2);if(!training)health()}catch(e){console.error(e)}}
+health();refresh();setInterval(refresh,10000);
+</script>
+</body>
+</html>
